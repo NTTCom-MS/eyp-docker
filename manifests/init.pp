@@ -5,6 +5,8 @@ class docker(
               $devs                   = undef,
               $volumegroup            = undef,
               $listen                 = [ 'unix:///var/run/docker.sock' ],
+              $dicker                 = true,
+              $srcdir                 = '/usr/local/src',
             ) inherits docker::params {
 
   #
@@ -50,6 +52,13 @@ class docker(
   service { 'docker':
     ensure => 'running',
     enable => true,
+  }
+
+  if($dicker)
+  {
+    class { 'docker::dicker':
+      srcdir => $srcdir,
+    }
   }
 
 
