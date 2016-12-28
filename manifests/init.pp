@@ -1,11 +1,10 @@
 #
 class docker(
               $insecure_registry      = undef,
-              $insecure_registry_port = "80",
+              $insecure_registry_port = '80',
               $devs                   = undef,
               $volumegroup            = undef,
               $listen                 = [ 'unix:///var/run/docker.sock' ],
-              $dicker                 = true,
               $srcdir                 = '/usr/local/src',
             ) inherits docker::params {
 
@@ -16,7 +15,7 @@ class docker(
 
   validate_array($listen)
 
-  package { $docker_package:
+  package { $docker::params::docker_package:
     ensure => 'installed',
   }
 
@@ -27,7 +26,7 @@ class docker(
     mode    => '0644',
     content => template("${module_name}/sysconfig/docker.erb"),
     notify  => Service['docker'],
-    require => Package[$docker_package],
+    require => Package[$docker::params::docker_package],
   }
 
   if($devs!=undef)
@@ -39,7 +38,7 @@ class docker(
       mode    => '0644',
       content => template("${module_name}/sysconfig/docker_storage.erb"),
       notify  => Exec['docker-storage-setup'],
-      require => Package[$docker_package],
+      require => Package[$docker::params::docker_package],
     }
 
     exec { 'docker-storage-setup':
@@ -53,13 +52,5 @@ class docker(
     ensure => 'running',
     enable => true,
   }
-
-  if($dicker)
-  {
-    class { 'docker::dicker':
-      srcdir => $srcdir,
-    }
-  }
-
 
 }
